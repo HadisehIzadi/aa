@@ -4,51 +4,70 @@ public class CatController : MonoBehaviour
 {
     public float speed = 5f;
     public float jumpForce = 8f;
-    public Joystick joystick; // Joystick رو از Inspector به این متغیر وصل کن
+    public Joystick joystick;
+    
+    public GameManager gameManager;
+
     private Rigidbody2D rb;
-    private bool isGrounded = true;
+    private bool isGrounded;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        rb.freezeRotation = true; 
+
     }
 
     void Update()
     {
-        // دریافت مقدار ورودی از جوی‌استیک
-        float moveX = joystick.Horizontal;
-        float moveY = joystick.Vertical; // مقدار عمودی جوی‌استیک
 
-        // تنظیم سرعت حرکت
+        float moveX = joystick.Horizontal;
+        float moveY = joystick.Vertical;
+
+
+
         rb.velocity = new Vector2(moveX * speed, rb.velocity.y);
 
-        // چرخش گربه به سمت راست یا چپ
-        if (moveX > 0.1f)
-            transform.localScale = new Vector3(6, 6, 6);
-        else if (moveX < -0.1f)
-            transform.localScale = new Vector3(-6, 6, 6);
 
-        // پرش با جوی‌استیک (اگر جوی‌استیک به سمت بالا کشیده شد و روی زمین هست)
+        if (moveX > 0.1f)
+            transform.localScale = new Vector3(7, 7, 1);
+
+        else if (moveX < -0.1f)
+            transform.localScale = new Vector3(-7, 7, 1);
+
+
         if (moveY > 0.5f && isGrounded)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-         //   isGrounded = false;
+            isGrounded = false;
         }
+
+
+        if (transform.position.y <= -5f)
+            gameManager.GameOver();
     }
 
-//    void OnCollisionEnter2D(Collision2D collision)
-//    {
-//        if (collision.gameObject.CompareTag("Ground"))
-//        {
-//            isGrounded = true;
-//        }
-//    }
-//
-//    void OnCollisionExit2D(Collision2D collision)
-//    {
-//        if (collision.gameObject.CompareTag("Ground"))
-//        {
-//            isGrounded = false;
-//        }
-//    }
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            Debug.Log("enter step");
+            isGrounded = true;
+        }
+        if (collision.gameObject.CompareTag("Fire"))
+        {
+        	gameManager.GameOver();
+        }
+        
+        
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            Debug.Log("exit step");
+            isGrounded = false;
+        }
+    }
 }
